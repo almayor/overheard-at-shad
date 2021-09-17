@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 RULES = """
 Добро пожаловать в группу! Чтобы нам здесь всем было уютно, в группе действуют следующие правила:
 
-1. Пожалуйста, относитесь друг к другу с уважением. Мы не приемлем оскорблений и дискриминацию по признаку пола, внешности, месту проживания, сексуальной и гендерной ориентации.
+1. Пожалуйста, относитесь друг к другу с уважением. Мы не приемлем оскорблений, а также дискриминацию по признаку пола, внешности, месту проживания, сексуальной и гендерной ориентации.
 
 2. Мы не публикуем откровенно сексуальный графический контент и спам.
 
@@ -23,6 +23,7 @@ RULES = """
 
 
 def escape(s):
+    "Escape characters forbidden by Telegram API"
     s = s.replace('_', '\\_')
     s = s.replace('#', '\\#')
     s = s.replace('.', '\\.')
@@ -31,11 +32,13 @@ def escape(s):
 
 
 def start_command(update: Update, context: CallbackContext) -> None:
+    "Return a welcome message and rules"
     logger.info("Someone's initiated a contact")
     update.message.reply_text(text=escape(RULES), parse_mode='MarkdownV2')
 
 
 def receive_post(update: Update, context: CallbackContext) -> None:
+    "A new post has been submitted -- ask the user if they want to add tags"
 
     reply_markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("#содержательное", callback_data='tag-содержательное')],
@@ -48,6 +51,7 @@ def receive_post(update: Update, context: CallbackContext) -> None:
 
 
 def tag_post(update: Update, context: CallbackContext) -> None:
+    "A post has been tagged -- ask the user if they are ready for submission"
 
     query = update.callback_query
     query.answer()
@@ -67,6 +71,7 @@ def tag_post(update: Update, context: CallbackContext) -> None:
 
 
 def confirm_post(update: Update, context: CallbackContext) -> None:
+    "A user has confirmed submission of a post -- send it to the moderator's group for approval"
 
     query = update.callback_query
     query.answer()
@@ -88,13 +93,15 @@ def confirm_post(update: Update, context: CallbackContext) -> None:
 
 
 def approve_post(update: Update, context: CallbackContext) -> None:
-    
+    "A moderator has reviewed a post -- either delete or publish it"
+
     query = update.callback_query
     query.answer()
 
     post_body = query.message.text
 
     if str(query.message.chat.id) != os.environ['MOD_CHAT_ID']:
+        # This callback should only be called from the moderators' group
         logger.warning("Someone's trying to impersonate a moderator")
         return
     
@@ -109,20 +116,18 @@ def approve_post(update: Update, context: CallbackContext) -> None:
 def main() -> None:
     updater = Updater(os.environ["TOKEN"])
 
+    # Add handlers
     updater.dispatcher.add_handler(CommandHandler('start', start_command))
     updater.dispatcher.add_handler(CommandHandler('help', start_command))
-
     updater.dispatcher.add_handler(CallbackQueryHandler(tag_post, pattern="^tag-"))
     updater.dispatcher.add_handler(CallbackQueryHandler(confirm_post, pattern="^confirm-"))
     updater.dispatcher.add_handler(CallbackQueryHandler(approve_post, pattern="^approve-"))
-
     updater.dispatcher.add_handler(MessageHandler(Filters.update.message, receive_post))
 
     # Start the Bot
     updater.start_polling()
 
-    # Run the bot until the user presses Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT
+    # Run the bot until the user presses Ctrl-C or the process receives SIGINT, SIGTERM or SIGABRT
     updater.idle()
 
 
