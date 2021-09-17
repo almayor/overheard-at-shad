@@ -23,3 +23,7 @@ You can write these to a `.env` file or specify in a command-line argument. What
 ```bash
 docker compose up
 ```
+
+### Examples
+
+You can check out the bot's functionality at <https://t.me/overheard_at_shad>.
