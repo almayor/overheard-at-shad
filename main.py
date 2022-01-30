@@ -24,7 +24,7 @@ RULES = """
 
 def escape(s):
     """Escape characters forbidden by Telegram API"""
-    to_escape = '_*~[]()`>#+-=|{}.!'
+    to_escape = '_*~[]()`#+-=|{}.!'
     for c in to_escape:
         s = s.replace(c, '\\' + c)
     return s
@@ -33,7 +33,7 @@ def escape(s):
 def start_command(update: Update, context: CallbackContext) -> None:
     """Return a welcome message and rules"""
     logger.info("Someone's initiated a contact")
-    update.message.reply_text(text=escape(RULES), parse_mode='MarkdownV2')
+    update.message.reply_text(text=RULES, parse_mode='HTML')
 
 
 def receive_post(update: Update, context: CallbackContext) -> None:
@@ -45,7 +45,7 @@ def receive_post(update: Update, context: CallbackContext) -> None:
     ])
 
     logger.info("Received someone's post")
-    response = f"*Твой пост:*\n\n{update.message.text}\n\n*Хочешь добавить тег?*"
+    response = f"<b>Твой пост:</b>\n\n{update.message.text}\n\n<b>Хочешь добавить тег?</b>"
     update.message.reply_text(escape(response), reply_markup=reply_markup, parse_mode='MarkdownV2')
 
 
@@ -84,8 +84,8 @@ def confirm_post(update: Update, context: CallbackContext) -> None:
     if query.data == 'confirm-no':
         query.delete_message()
     else:
-        response = f"🔥 *Пост отправлен 🔥*\n\n{post_body}\n\n"
-        query.edit_message_text(text=escape(response), parse_mode='MarkdownV2')
+        response = f"🔥 <b>Пост отправлен 🔥</b>\n\n{post_body}\n\n"
+        query.edit_message_text(text=escape(response), parse_mode='HTML')
 
         bot = Bot(token=os.environ['TOKEN'])
         bot.send_message(chat_id=os.environ['MOD_CHAT_ID'], text=escape(post_body), reply_markup=reply_markup, parse_mode='MarkdownV2')
