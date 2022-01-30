@@ -63,7 +63,7 @@ def tag_post(update: Update, context: CallbackContext) -> None:
 
     if query.data != 'tag-none':
         tag = query.data.split('-')[1]
-        post_body += f"\n#{tag}"
+        post_body += f"\n\n#{tag}"
 
     response = f"<b>Твой пост:</b>\n\n{post_body}\n\n<b>Готово?</b>"
     query.edit_message_text(text=escape(response), reply_markup=reply_markup, parse_mode=ParseMode.HTML)
