@@ -24,7 +24,7 @@ RULES = """
 
 def escape(s):
     """Escape characters forbidden by Telegram API"""
-    to_escape = '_*~[]()`>#+-=|{}.!'
+    to_escape = '_*~[]()`#+-|{}.!'
     for c in to_escape:
         s = s.replace(c, '\\' + c)
     return s
@@ -65,7 +65,7 @@ def tag_post(update: Update, context: CallbackContext) -> None:
         tag = query.data.split('-')[1]
         post_body += f"\n#{tag}"
 
-    response = f"*Твой пост:*\n\n{post_body}\n\n*Готово?*"
+    response = f"<b>Твой пост:</b>\n\n{post_body}\n\n<b>Готово?</b>"
     query.edit_message_text(text=escape(response), reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 
 
