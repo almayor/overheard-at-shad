@@ -1,7 +1,7 @@
 import logging
 import os
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 
 
@@ -33,7 +33,7 @@ def escape(s):
 def start_command(update: Update, context: CallbackContext) -> None:
     """Return a welcome message and rules"""
     logger.info("Someone's initiated a contact")
-    update.message.reply_text(text=RULES, parse_mode='HTML')
+    update.message.reply_text(text=RULES, parse_mode=ParseMode.HTML)
 
 
 def receive_post(update: Update, context: CallbackContext) -> None:
@@ -46,7 +46,7 @@ def receive_post(update: Update, context: CallbackContext) -> None:
 
     logger.info("Received someone's post")
     response = f"<b>Твой пост:</b>\n\n{update.message.text}\n\n<b>Хочешь добавить тег?</b>"
-    update.message.reply_text(escape(response), reply_markup=reply_markup, parse_mode='MarkdownV2')
+    update.message.reply_text(escape(response), reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 
 
 def tag_post(update: Update, context: CallbackContext) -> None:
@@ -66,7 +66,7 @@ def tag_post(update: Update, context: CallbackContext) -> None:
         post_body += f"\n#{tag}"
 
     response = f"*Твой пост:*\n\n{post_body}\n\n*Готово?*"
-    query.edit_message_text(text=escape(response), reply_markup=reply_markup, parse_mode='MarkdownV2')
+    query.edit_message_text(text=escape(response), reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 
 
 def confirm_post(update: Update, context: CallbackContext) -> None:
@@ -84,11 +84,11 @@ def confirm_post(update: Update, context: CallbackContext) -> None:
     if query.data == 'confirm-no':
         query.delete_message()
     else:
-        response = f"🔥 <b>Пост отправлен 🔥</b>\n\n{post_body}\n\n"
-        query.edit_message_text(text=escape(response), parse_mode='HTML')
+        response = f"🔥 <b>Пост отправлен</b> 🔥\n\n{post_body}\n\n"
+        query.edit_message_text(text=escape(response), parse_mode=ParseMode.HTML)
 
         bot = Bot(token=os.environ['TOKEN'])
-        bot.send_message(chat_id=os.environ['MOD_CHAT_ID'], text=escape(post_body), reply_markup=reply_markup, parse_mode='MarkdownV2')
+        bot.send_message(chat_id=os.environ['MOD_CHAT_ID'], text=escape(post_body), reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 
 
 def approve_post(update: Update, context: CallbackContext) -> None:
@@ -107,7 +107,7 @@ def approve_post(update: Update, context: CallbackContext) -> None:
     if query.data == 'approve-yes':
         query.delete_message()
         bot = Bot(token=os.environ['TOKEN'])
-        bot.send_message(chat_id=os.environ['CHANNEL_ID'], text=escape(post_body), parse_mode='MarkdownV2')
+        bot.send_message(chat_id=os.environ['CHANNEL_ID'], text=escape(post_body), parse_mode=ParseMode.HTML)
     else:
         query.delete_message()
 
