@@ -23,26 +23,21 @@ RULES = """
 
 
 def escape(s):
-    "Escape characters forbidden by Telegram API"
-    s = s.replace('_', '\\_')
-    s = s.replace('#', '\\#')
-    s = s.replace('.', '\\.')
-    s = s.replace('!', '\\!')
-    s = s.replace('(', '\\(')
-    s = s.replace(')', '\\)')
-    s = s.replace('[', '\\[')
-    s = s.replace(']', '\\]')
+    """Escape characters forbidden by Telegram API"""
+    to_escape = '_*[]()~`>#+-=|{}.!'
+    for c in to_escape:
+        s = s.replace(c, '\\' + c)
     return s
 
 
 def start_command(update: Update, context: CallbackContext) -> None:
-    "Return a welcome message and rules"
+    """Return a welcome message and rules"""
     logger.info("Someone's initiated a contact")
     update.message.reply_text(text=escape(RULES), parse_mode='MarkdownV2')
 
 
 def receive_post(update: Update, context: CallbackContext) -> None:
-    "A new post has been submitted -- ask the user if they want to add tags"
+    """A new post has been submitted -- ask the user if they want to add tags"""
 
     reply_markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("#содержательное", callback_data='tag-содержательное')],
@@ -55,7 +50,7 @@ def receive_post(update: Update, context: CallbackContext) -> None:
 
 
 def tag_post(update: Update, context: CallbackContext) -> None:
-    "A post has been tagged -- ask the user if they are ready for submission"
+    """A post has been tagged -- ask the user if they are ready for submission"""
 
     query = update.callback_query
     query.answer()
@@ -75,7 +70,7 @@ def tag_post(update: Update, context: CallbackContext) -> None:
 
 
 def confirm_post(update: Update, context: CallbackContext) -> None:
-    "A user has confirmed submission of a post -- send it to the moderator's group for approval"
+    """A user has confirmed submission of a post -- send it to the moderator's group for approval"""
 
     query = update.callback_query
     query.answer()
@@ -97,7 +92,7 @@ def confirm_post(update: Update, context: CallbackContext) -> None:
 
 
 def approve_post(update: Update, context: CallbackContext) -> None:
-    "A moderator has reviewed a post -- either delete or publish it"
+    """A moderator has reviewed a post -- either delete or publish it"""
 
     query = update.callback_query
     query.answer()
