@@ -24,9 +24,9 @@ RULES = """
 
 def escape(s):
     """Escape characters forbidden by Telegram API"""
-    to_escape = '_*~[]()`#+-|{}.!'
-    for c in to_escape:
-        s = s.replace(c, '\\' + c)
+    # to_escape = '_*~[]()`#+-|{}.!'
+    # for c in to_escape:
+    #     s = s.replace(c, '\\' + c)
     return s
 
 
